@@ -1,7 +1,7 @@
 <?php
 //mengecek apakah tombol sudah di klik
 
-require("../../model/dbPeople.php");
+require("database/dbPeople.php");
 $id = $_GET["id"];
 
 $people = query("SELECT * FROM people WHERE people_id = $id")[0];
@@ -12,7 +12,7 @@ if (isset($_POST["submit"])) {
     if (update($_POST) > 0) {
         echo '<script>
             alert("berhasil diubah")
-            document.location.href = "../../views/admin/peoplePage.php"
+            document.location.href = "peoplePage.php"
             </script>';
     } else {
         echo '<script>
@@ -72,11 +72,11 @@ if (isset($_POST["submit"])) {
                 <label for=" photo">Photo</label>(Max size : 1mb)
                 <br>(Only accept jpg, jpeg, png extension) <br>
                 <input type="hidden" name="old-photo" value="<?= $people["photo"] ?>">
-                <img src="../../img/people/<?= $people["photo"] ?>" alt="">
+                <img src="img/people/<?= $people["photo"] ?>" alt="">
                 <input type="file" name="photo" id="photo">
             </li>
             <button type="submit" name="submit">Add</button>
-            <a href="../../views/admin/peoplePage.php">cancel</a>
+            <a href="peoplePage.php">cancel</a>
         </form>
     </ul>
 </body>

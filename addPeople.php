@@ -1,17 +1,17 @@
 <?php
 //mengecek apakah tombol sudah di klik
 
-require("../../model/dbPeople.php");
+require("database/dbPeople.php");
 if (isset($_POST["submit"])) {
     if (add($_POST) > 0) {
         echo '<script>
             alert("data berhasil ditambahkan")
-            document.location.href = "../../views/admin/peoplePage.php"
+            document.location.href = "peoplePage.php"
             </script>';
     } else {
         echo '<script>
             alert("data gagal ditambahkan")
-            document.location.href = "../../views/admin/peoplePage.php"
+            document.location.href = "peoplePage.php"
             </script>';
     }
 
