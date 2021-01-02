@@ -20,22 +20,19 @@ function add($data)
     // Data initialization
     global $conn;
     $name = secureInput($data["name"]);
-    $birthday = secureInput($data["birthday"]);
-    $birthPlace = secureInput($data["birth-place"]);
     $description = secureInput($data["description"]);
-    $isActor = isset($data["is-actor"]) ? 1 : 0;
-    $isDirector = isset($data["is-director"]) ? 1 : 0;
 
-    //upload photo
-    $photo = upload();
-    if (!$photo) {
+
+    //upload logo
+    $logo = upload();
+    if (!$logo) {
         return false;
     }
 
     // Insert to db
-    $query = "INSERT INTO people
+    $query = "INSERT INTO production_company
         VALUES
-        ('','$name','$birthday','$birthPlace','$photo','$description','$isActor','$isDirector')
+        ('','$name','$logo','$description')
     ";
 
     mysqli_query($conn, $query);
@@ -46,10 +43,10 @@ function add($data)
 function upload()
 {
     // Initialization
-    $fileName = $_FILES['photo']['name'];
-    $fileSize = $_FILES['photo']['size'];
-    $error = $_FILES['photo']['error'];
-    $tmpName = $_FILES['photo']['tmp_name'];
+    $fileName = $_FILES['logo']['name'];
+    $fileSize = $_FILES['logo']['size'];
+    $error = $_FILES['logo']['error'];
+    $tmpName = $_FILES['logo']['tmp_name'];
 
     //Check if image not upladed
     if ($error == 4) {
@@ -73,7 +70,7 @@ function upload()
     $newFileName = uniqid();
     $newFileName .= "." . $imageExtension;
 
-    move_uploaded_file($tmpName, 'img/people/' . $newFileName);
+    move_uploaded_file($tmpName, 'img/productionCo/' . $newFileName);
 
     return $newFileName;
 }
@@ -82,11 +79,11 @@ function upload()
 function delete($id)
 {
     global $conn;
-    $people = query("SELECT * FROM people WHERE people_id = $id")[0];
+    $production_company = query("SELECT * FROM production_company WHERE production_co_id = $id")[0];
     //Delete image file
-    unlink('img/people/' . $people["photo"]);
+    unlink('img/productionCo/' . $production_company["logo"]);
 
-    mysqli_query($conn, "DELETE FROM people WHERE people_id = $id");
+    mysqli_query($conn, "DELETE FROM production_company WHERE production_co_id = $id");
     return mysqli_affected_rows($conn);
 }
 
@@ -97,30 +94,22 @@ function update($data)
     global $conn;
     $id = secureInput($data["id"]);
     $name = secureInput($data["name"]);
-    $birthday = secureInput($data["birthday"]);
-    $birthPlace = secureInput($data["birth-place"]);
     $description = secureInput($data["description"]);
-    $isActor = isset($data["is-actor"]) ? 1 : 0;
-    $isDirector = isset($data["is-director"]) ? 1 : 0;
 
-    $oldPhoto = $data["old-photo"];
-    //If photo not changed or changed
-    if ($_FILES['photo']['error'] == 4) {
-        $photo = $oldPhoto;
+    $oldLogo = $data["old-logo"];
+    //If logo not changed or changed
+    if ($_FILES['logo']['error'] == 4) {
+        $logo = $oldLogo;
     } else {
-        unlink('img/people/' . $oldPhoto);
-        $photo = upload();
+        unlink('img/productionCo/' . $oldLogo);
+        $logo = upload();
     }
 
-    $query = "UPDATE people SET
+    $query = "UPDATE production_company SET
                     name = '$name',
-                    birth_place = '$birthPlace',
-                    birthday = '$birthday',
                     description = '$description',
-                    photo = '$photo',
-                    is_actor = '$isActor',
-                    is_director = '$isDirector'
-                    WHERE people_id = '$id';
+                    logo = '$logo'
+                    WHERE production_co_id = '$id';
     ";
     mysqli_query($conn, $query);
     return mysqli_affected_rows($conn);
@@ -129,7 +118,7 @@ function update($data)
 // Search data
 function search($keyword)
 {
-    $query = "SELECT * FROM people WHERE name LIKE '%$keyword%'";
+    $query = "SELECT * FROM production_company WHERE name LIKE '%$keyword%'";
     return query($query);
 }
 

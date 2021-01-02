@@ -1,0 +1,54 @@
+<?php
+//mengecek apakah tombol sudah di klik
+
+require("database/dbProductionCo.php");
+if (isset($_POST["submit"])) {
+    if (add($_POST) > 0) {
+        echo '<script>
+            alert("data berhasil ditambahkan")
+            document.location.href = "productionCompanyPage.php"
+            </script>';
+    } else {
+        echo '<script>
+            alert("data gagal ditambahkan")
+            document.location.href = "productionCompanyPage.php"
+            </script>';
+    }
+
+    echo mysqli_error($conn);
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah</title>
+</head>
+
+<body>
+    <h1>Tambah Data Anime</h1>
+    <ul>
+        <form action="" method="post" enctype="multipart/form-data">
+            <li>
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" required>
+            </li>
+
+            <li>
+                Description : <br>
+                <textarea name="description" id="description" cols="30" rows="10" required></textarea>
+            </li>
+
+            <li>
+                <label for="logo">Logo</label>(Max size : 1mb)
+                <br>(Only accept jpg, jpeg, png extension) <br>
+                <input type="file" name="logo" id="logo" required>
+            </li>
+            <button type="submit" name="submit">Add</button>
+        </form>
+    </ul>
+</body>
+
+</html>
