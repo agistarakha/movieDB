@@ -1,5 +1,8 @@
 <?php
+// Initialize db connection
 $conn = mysqli_connect("localhost", "root", "", "moviedb");
+
+// Data query
 function query($query)
 {
     global $conn;
@@ -11,138 +14,164 @@ function query($query)
     return $rows;
 }
 
-function tambah($data)
+// Create new data
+function add($data, $id)
 {
+    // Data initialization
+    // date_default_timezone_set('Asia/Jakarta');
     global $conn;
-    $title = $data["title"];
-    $studio = $data["studio"];
-    $tahun = $data["tahun"];
-    $status = $data["status"];
+    $title = secureInput($data["title"]);
+    $releaseDate = secureInput($data["release-date"]);
+    $duration = secureInput($data["duration"]);
+    $plot = secureInput($data["plot"]);
+    $language = secureInput($data["language"]);
+    $directorId = secureInput($data["director-id"]);
+    $trailer = secureInput($data["trailer"]);
+    $productionCoId = secureInput($data["production-co-id"]);
+    $rating = secureInput($data["rating"]);
+    // $date = date('Y-m-d H:i:s');
+    // echo $date;
+    // die;
 
-    //upload gambar
-    $gambar = upload();
-    if (!$gambar) {
+
+    //upload poster
+    $poster = upload();
+    if (!$poster) {
         return false;
     }
-    $query = "INSERT INTO anime
+
+
+    // Insert to db
+    $query = "INSERT INTO movie
         VALUES
-        ('','$title','$tahun','$studio','$status','$gambar')
+        ('$id','$productionCoId','$directorId','$title','$trailer','$poster','$releaseDate','$language','$rating','$plot','$duration','')
     ";
+
     mysqli_query($conn, $query);
     return mysqli_affected_rows($conn);
 }
 
+function addGenre($data, $id)
+{
+    global $conn;
+    $movieId = $data['movie-id'];
+    mysqli_query($conn, "DELETE FROM genre WHERE movie_id = $movieId");
+    $genres = $data['genre'];
+    if (isset($genres)) {
+        if (is_array($genres)) {
+            foreach ($genres as $value) {
+                mysqli_query($conn, "INSERT INTO genre VALUES('$value','$id')");
+            }
+        } else {
+            $value = $genres;
+            mysqli_query($conn, "INSERT INTO genre VALUES('$value','$id')");
+        }
+    }
+    return isset($genres);
+}
+// Update data
 function upload()
 {
-    $namaFile = $_FILES['gambar']['name'];
-    $ukuranFile = $_FILES['gambar']['size'];
-    $error = $_FILES['gambar']['error'];
-    $tmpName = $_FILES['gambar']['tmp_name'];
+    // Initialization
+    $fileName = $_FILES['poster']['name'];
+    $fileSize = $_FILES['poster']['size'];
+    $error = $_FILES['poster']['error'];
+    $tmpName = $_FILES['poster']['tmp_name'];
 
-    //cek apakah gambar di upload
+    //Check if image not upladed
     if ($error == 4) {
-        echo "<script> alert('Gambare upload woy') </script>";
+        echo "<script> alert('Upload image required') </script>";
         return false;
     }
-    // cek type yang di upload
 
+    // File extension check
     $validImageExtension = ['jpg', 'png', 'jpeg'];
-    $ekstensiGambar = explode('.', $namaFile);
-    $ekstensiGambar = strtolower(end($ekstensiGambar));
-    if (!in_array($ekstensiGambar, $validImageExtension)) {
-        echo "<script> alert('Kirmnya gambar bangsat!') </script>";
+    $imageExtension = explode('.', $fileName);
+    $imageExtension = strtolower(end($imageExtension));
+    if (!in_array($imageExtension, $validImageExtension)) {
+        echo "<script> alert('Only accept jpg, png, jpeg extension') </script>";
     }
 
-    //jika ukurannya terlalu besar
-    if ($ukuranFile > 1000000) {
-        echo "<script> alert('Ukuran ente bangsat!') </script>";
+    //Size limit check
+    if ($fileSize > 1000000) {
+        echo "<script> alert('file cannot be uploaded, file size is more than 1mb') </script>";
     }
-    //Lolos pengecekan gambar
 
-    $namaFileBaru = uniqid();
-    $namaFileBaru .= "." . $ekstensiGambar;
+    $newFileName = uniqid();
+    $newFileName .= "." . $imageExtension;
 
-    move_uploaded_file($tmpName, 'img/' . $namaFileBaru);
+    move_uploaded_file($tmpName, 'img/movie/' . $newFileName);
 
-    return $namaFileBaru;
+    return $newFileName;
 }
 
-function hapus($id)
+// Delete data
+function delete($id)
 {
     global $conn;
-    mysqli_query($conn, "DELETE FROM anime WHERE id = $id");
+    $movie = query("SELECT * FROM movie WHERE movie_id = '$id'")[0];
+    //Delete image file
+    unlink('img/movie/' . $movie["poster"]);
+
+    mysqli_query($conn, "DELETE FROM genre WHERE movie_id = '$id'");
+    mysqli_query($conn, "DELETE FROM movie WHERE movie_id = '$id'");
     return mysqli_affected_rows($conn);
 }
 
-function ubah($data)
+// Update data
+function update($data, $id)
 {
+    // Initialize data
     global $conn;
-    $id = $data["id"];
-    $title = $data["title"];
-    $studio = $data["studio"];
-    $tahun = $data["tahun"];
-    $status = $data["status"];
+    $title = secureInput($data["title"]);
+    $releaseDate = secureInput($data["release-date"]);
+    $duration = secureInput($data["duration"]);
+    $plot = secureInput($data["plot"]);
+    $language = secureInput($data["language"]);
+    $directorId = secureInput($data["director-id"]);
+    $trailer = secureInput($data["trailer"]);
+    $productionCoId = secureInput($data["production-co-id"]);
+    $rating = secureInput($data["rating"]);
+    $oldPoster = $data["old-poster"];
 
-    $gambarLama = $data["gambarLama"];
-    //cek apakah gambar diganti
-    if ($_FILES['gambar']['error'] == 4) {
-        $gambar = $gambarLama;
+    //If poster not changed or changed
+    if ($_FILES['poster']['error'] == 4) {
+        $poster = $oldPoster;
     } else {
-        $gambar = upload();
+        unlink('img/movie/' . $oldPoster);
+        $poster = upload();
     }
 
-    $query = "UPDATE anime SET
+    $query = "UPDATE movie SET
                     title = '$title',
-                    tahun = '$tahun',
-                    studio = '$studio',
-                    status = '$status',
-                    gambar = '$gambar'
-                    WHERE id = '$id';
+                    rating = '$rating',
+                    release_date = '$releaseDate',
+                    plot = '$plot',
+                    poster = '$poster',
+                    director_id = '$directorId',
+                    production_co_id = '$productionCoId',
+                    language = '$language',
+                    trailer = '$trailer',
+                    duration = '$duration'
+                    WHERE movie_id = '$id';
     ";
     mysqli_query($conn, $query);
     return mysqli_affected_rows($conn);
 }
 
-function cari($keyword)
+// Search data
+function search($keyword)
 {
-    $query = "SELECT * FROM anime WHERE title LIKE '%$keyword%' OR studio LIKE '$keyword%'";
+    $keyword = secureInput($keyword);
+    $query = "SELECT * FROM movie WHERE title LIKE '%$keyword%'";
     return query($query);
 }
 
-function registrasi($data)
+//Sanitize input
+function secureInput($data)
 {
-    global $conn;
-
-    $username = strtolower(stripslashes($data["username"]));
-    $password = mysqli_real_escape_string($conn, $data["password"]);
-    $password2 = mysqli_real_escape_string($conn, $data["password2"]);
-
-    //cek username sudah ada atau belum
-
-    $result = mysqli_query($conn, "SELECT username FROM user WHERE username = '$username'");
-    if (mysqli_fetch_assoc($result)) {
-        echo "<script>
-            alert('username sudah ada')
-            </script>
-            ";
-        return false;
-    }
-    //cek konfirmasi password
-    if ($password != $password2) {
-        echo "
-            <script> 
-                alert('Konfirmasi password tidak sesuai')
-            </script>
-            ";
-        return false;
-    }
-    //enkripsi password
-    $password = password_hash($password, PASSWORD_DEFAULT);
-
-    //memasukan data ke db
-    mysqli_query($conn, " INSERT INTO user VALUES(
-            '','$username','$password'
-        )");
-
-    return mysqli_affected_rows($conn);
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
 }
