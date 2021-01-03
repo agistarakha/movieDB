@@ -20,11 +20,9 @@ function add($data)
     // Data initialization
     global $conn;
     $name = secureInput($data["name"]);
-    $birthday = secureInput($data["birthday"]);
-    $birthPlace = secureInput($data["birth-place"]);
+    $movieId = secureInput($data["movie-id"]);
+    $actorId = secureInput($data["actor-id"]);
     $description = secureInput($data["description"]);
-    $isActor = isset($data["is-actor"]) ? 1 : 0;
-    $isDirector = isset($data["is-director"]) ? 1 : 0;
 
     //upload photo
     $photo = upload();
@@ -33,9 +31,9 @@ function add($data)
     }
 
     // Insert to db
-    $query = "INSERT INTO people
+    $query = "INSERT INTO movie_character
         VALUES
-        ('','$name','$birthday','$birthPlace','$photo','$description','$isActor','$isDirector')
+        ('','$movieId','$actorId','$name','$photo','$description')
     ";
 
     mysqli_query($conn, $query);
@@ -73,7 +71,7 @@ function upload()
     $newFileName = uniqid();
     $newFileName .= "." . $imageExtension;
 
-    move_uploaded_file($tmpName, 'img/people/' . $newFileName);
+    move_uploaded_file($tmpName, 'img/character/' . $newFileName);
 
     return $newFileName;
 }
@@ -82,45 +80,41 @@ function upload()
 function delete($id)
 {
     global $conn;
-    $people = query("SELECT * FROM people WHERE people_id = $id")[0];
+    $character = query("SELECT * FROM movie_character WHERE character_id = $id")[0];
     //Delete image file
-    unlink('img/people/' . $people["photo"]);
+    unlink('img/character/' . $character["photo"]);
 
-    mysqli_query($conn, "DELETE FROM people WHERE people_id = $id");
+    mysqli_query($conn, "DELETE FROM movie_character WHERE character_id = $id");
     return mysqli_affected_rows($conn);
 }
 
 // Update data
-function update($data)
+function update($data, $id)
 {
     // Initialize data
     global $conn;
-    $id = secureInput($data["id"]);
     $name = secureInput($data["name"]);
-    $birthday = secureInput($data["birthday"]);
-    $birthPlace = secureInput($data["birth-place"]);
+    $movieId = secureInput($data["movie-id"]);
+    $actorId = secureInput($data["actor-id"]);
     $description = secureInput($data["description"]);
-    $isActor = isset($data["is-actor"]) ? 1 : 0;
-    $isDirector = isset($data["is-director"]) ? 1 : 0;
 
     $oldPhoto = $data["old-photo"];
     //If photo not changed or changed
     if ($_FILES['photo']['error'] == 4) {
         $photo = $oldPhoto;
     } else {
-        unlink('img/people/' . $oldPhoto);
+        unlink('img/character/' . $oldPhoto);
         $photo = upload();
+        // die;
     }
 
-    $query = "UPDATE people SET
+    $query = "UPDATE movie_character SET
                     name = '$name',
-                    birth_place = '$birthPlace',
-                    birthday = '$birthday',
+                    people_id = '$actorId',
+                    movie_id = '$movieId',
                     description = '$description',
-                    photo = '$photo',
-                    is_actor = '$isActor',
-                    is_director = '$isDirector'
-                    WHERE people_id = '$id';
+                    photo = '$photo'
+                    WHERE character_id = '$id';
     ";
     mysqli_query($conn, $query);
     return mysqli_affected_rows($conn);
@@ -129,7 +123,7 @@ function update($data)
 // Search data
 function search($keyword)
 {
-    $query = "SELECT * FROM people WHERE name LIKE '%$keyword%'";
+    $query = "SELECT * FROM movie_character WHERE name LIKE '%$keyword%'";
     return query($query);
 }
 
