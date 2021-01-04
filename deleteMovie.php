@@ -1,4 +1,9 @@
 <?php
+session_start();
+if (!isset($_SESSION["admin"])) {
+    header("location: userPage/login.php");
+    exit;
+}
 require("database/dbMovie.php");
 $id = $_GET["id"];
 

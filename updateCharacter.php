@@ -1,4 +1,9 @@
 <?php
+session_start();
+if (!isset($_SESSION["admin"])) {
+    header("location: userPage/login.php");
+    exit;
+}
 //mengecek apakah tombol sudah di klik
 
 require("database/dbCharacter.php");

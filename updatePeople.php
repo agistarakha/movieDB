@@ -1,5 +1,10 @@
 <?php
 //mengecek apakah tombol sudah di klik
+session_start();
+if (!isset($_SESSION["admin"])) {
+    header("location: userPage/login.php");
+    exit;
+}
 
 require("database/dbPeople.php");
 $id = $_GET["id"];

@@ -1,4 +1,9 @@
 <?php
+session_start();
+if (!isset($_SESSION["admin"])) {
+    header("location: userPage/login.php");
+    exit;
+}
 require("database/dbCharacter.php");
 $id = $_GET["id"];
 
