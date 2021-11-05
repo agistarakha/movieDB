@@ -112,7 +112,8 @@ function delete($id)
     $movie = query("SELECT * FROM movie WHERE movie_id = '$id'")[0];
     //Delete image file
     unlink('img/movie/' . $movie["poster"]);
-
+    mysqli_query($conn, "DELETE FROM movie_character WHERE movie_id='$id'");
+    mysqli_query($conn, "DELETE FROM review WHERE movie_id='$id'");
     mysqli_query($conn, "DELETE FROM genre WHERE movie_id = '$id'");
     mysqli_query($conn, "DELETE FROM movie WHERE movie_id = '$id'");
     return mysqli_affected_rows($conn);

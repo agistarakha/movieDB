@@ -13,7 +13,6 @@ $ratings = ["G", "PG", "PG-13", "R", "NC-17"];
 $directors = query("SELECT * FROM people WHERE is_director='1'");
 $companies = query("SELECT * FROM production_company");
 $id = uniqid();
-echo $id;
 if (isset($_POST["submit"])) {
     if (add($_POST, $id) > 0 && addGenre($_POST, $id) > 0) {
         echo '<script>

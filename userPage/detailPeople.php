@@ -137,6 +137,9 @@ $movies = query("SELECT * FROM movie WHERE director_id='$id'");
                 <p class="text-sm-left">Name :<span style="color: #808080;"> <?= $people['name'] ?></span><br>
                     Birthday :<span style="color: #808080;"> <?= $people['birthday'] ?> </span><br>
                     Birth place :<span style="color: #808080;"> <?= $people['birth_place'] ?> </span>
+                    <br>Role:<span style="color: #808080;">
+                        <?= ($people['is_director'] == 1) ? 'Director' : '' ?><?= ($people['is_actor'] == 1) ? ',Actor' : '' ?>
+                    </span>
 
                 </p>
 

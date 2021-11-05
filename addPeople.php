@@ -14,6 +14,8 @@ if (isset($_POST["submit"])) {
             document.location.href = "peoplePage.php"
             </script>';
     } else {
+        echo mysqli_error($conn);
+        die;
         echo '<script>
             alert("data gagal ditambahkan")
             document.location.href = "peoplePage.php"

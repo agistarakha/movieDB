@@ -177,7 +177,6 @@ if (isset($_POST["submit"])) {
                 <th>Name</th>
                 <th>Birthday</th>
                 <th>Birth Place</th>
-                <th>Description</th>
             </tr>
             <!-- <?php $i = 1 ?> -->
             <?php foreach ($peoples as $people) : ?>
@@ -191,7 +190,6 @@ if (isset($_POST["submit"])) {
                 <td><?= $people["name"] ?></td>
                 <td><?= $people["birthday"] ?></td>
                 <td><?= $people["birth_place"] ?></td>
-                <td><?= $people["description"] ?></td>
             </tr>
             <?php $i++ ?>
             <?php endforeach ?>
